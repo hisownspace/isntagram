@@ -8,6 +8,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import UsersList from './components/UsersList';
 import User from './components/User';
 import { authenticate } from './store/session';
+import UploadImage from './components/UploadImage';
 
 function App() {
   const [loaded, setLoaded] = useState(false);
@@ -28,21 +29,12 @@ function App() {
     <BrowserRouter>
       <NavBar />
       <Switch>
-        <Route path='/login' exact={true}>
-          <LoginForm />
-        </Route>
-        <Route path='/sign-up' exact={true}>
-          <SignUpForm />
-        </Route>
-        <ProtectedRoute path='/users' exact={true} >
-          <UsersList/>
-        </ProtectedRoute>
-        <ProtectedRoute path='/users/:userId' exact={true} >
-          <User />
-        </ProtectedRoute>
-        <ProtectedRoute path='/' exact={true} >
-          <h1>My Home Page</h1>
-        </ProtectedRoute>
+        <Route path='/login' exact={true}><LoginForm /></Route>
+        <Route path='/sign-up' exact={true}><SignUpForm /></Route>
+        <ProtectedRoute path='/users' exact={true} ><UsersList/></ProtectedRoute>
+        <ProtectedRoute path='/users/:userId' exact={true} ><User /></ProtectedRoute>
+        <ProtectedRoute path='/' exact={true} ><h1>My Home Page</h1></ProtectedRoute>
+        <Route path="/upload"><UploadImage /></Route>
       </Switch>
     </BrowserRouter>
   );

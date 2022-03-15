@@ -1,6 +1,6 @@
 from .db import db
 from .comment import liked_comment
-from .picture import liked_picture
+from .image import liked_picture
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -30,13 +30,13 @@ class User(db.Model, UserMixin):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
     comments = db.relationship('Comment', back_populates='user')
-    pictures = db.relationship('Picture', back_populates='user')
+    pictures = db.relationship('Image', back_populates='user')
 
     liked_comment = db.relationship('Comment',
                                     secondary=liked_comment,
                                     back_populates='user_like')
     
-    liked_picture = db.relationship('Picture',
+    liked_picture = db.relationship('Image',
                                     secondary=liked_picture,
                                     back_populates='user_like')
     

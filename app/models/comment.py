@@ -24,7 +24,7 @@ class Comment(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
     user = db.relationship('User', back_populates='comments')
-    picture = db.relationship('Picture', back_populates='comments')
+    picture = db.relationship('Image', back_populates='comments')
 
     user_like = db.relationship('User',
                                 secondary=liked_comment,

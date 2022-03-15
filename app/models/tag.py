@@ -20,6 +20,6 @@ class Tag(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
-    pictures = db.relationship("Picture",
+    pictures = db.relationship("Image",
                                 secondary=tagged_picture,
                                 back_populates="tags")

@@ -13,7 +13,7 @@ liked_picture = db.Table('liked_picture',
                 nullable=False)
 )
 
-class Picture(db.Model):
+class Image(db.Model):
     __tablename__ = "pictures"
 
     id = db.Column(db.Integer, primary_key=True)
