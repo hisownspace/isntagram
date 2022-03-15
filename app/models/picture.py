@@ -9,15 +9,15 @@ liked_picture = db.Table('liked_picture',
                 nullable=False),
     db.Column('picture_id',
                 db.Integer,
-                db.foreignKey("pictures.id"),
+                db.ForeignKey("pictures.id"),
                 nullable=False)
 )
 
-class Picture(db.model):
-    tablename = "pictures"
+class Picture(db.Model):
+    __tablename__ = "pictures"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.foreignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     url = db.Column(db.String(255), nullable=False, unique=True)
     caption = db.Column(db.String(2200), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())

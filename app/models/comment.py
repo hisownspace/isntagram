@@ -9,16 +9,16 @@ liked_comment = db.Table('liked_comment',
                 nullable=False),
     db.Column('comment_id',
                 db.Integer,
-                db.foreignKey("comments.id"),
+                db.ForeignKey("comments.id"),
                 nullable=False)
 )
 
-class Comment(db.model):
-    tablename = "comments"
+class Comment(db.Model):
+    __tablename__ = "comments"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.foreignKey('user.id'), nullable=False,)
-    picture_id = db.Column(db.Integer, db.foreignKey('picture.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False,)
+    picture_id = db.Column(db.Integer, db.ForeignKey('pictures.id'), nullable=False)
     content = db.Column(db.String(2200), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
