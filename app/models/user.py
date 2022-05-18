@@ -5,7 +5,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
-
+# Self-referential join table to track followers and followees
 followers = db.Table('followers',
     db.Column('follower_id',
                 db.Integer,
@@ -27,7 +27,7 @@ class User(db.Model, UserMixin):
     image_url = db.Column(db.String(255), nullable=False)
     hashed_password = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
 
     comments = db.relationship('Comment', back_populates='user')
     pictures = db.relationship('Image', back_populates='user')
@@ -63,5 +63,6 @@ class User(db.Model, UserMixin):
         return {
             'id': self.id,
             'username': self.username,
-            'email': self.email
+            'email': self.email,
+            'password': self.password
         }

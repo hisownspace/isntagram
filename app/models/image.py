@@ -21,7 +21,7 @@ class Image(db.Model):
     url = db.Column(db.String(255), nullable=False, unique=True)
     caption = db.Column(db.String(2200), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
 
     user = db.relationship('User', back_populates='pictures')
     comments = db.relationship('Comment', back_populates='picture')

@@ -21,7 +21,7 @@ class Comment(db.Model):
     picture_id = db.Column(db.Integer, db.ForeignKey('pictures.id'), nullable=False)
     content = db.Column(db.String(2200), nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
 
     user = db.relationship('User', back_populates='comments')
     picture = db.relationship('Image', back_populates='comments')
