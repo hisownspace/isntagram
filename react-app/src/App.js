@@ -9,6 +9,7 @@ import UsersList from './components/UsersList';
 import User from './components/User';
 import { authenticate } from './store/session';
 import UploadImage from './components/UploadImage';
+import MainFeed from './components/MainFeed';
 
 function App() {
   const [loaded, setLoaded] = useState(false);
@@ -28,6 +29,7 @@ function App() {
   return (
     <BrowserRouter>
       <NavBar />
+      <MainFeed />
       <Switch>
         <Route path='/login' exact={true}><LoginForm /></Route>
         <Route path='/sign-up' exact={true}><SignUpForm /></Route>
