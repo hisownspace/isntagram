@@ -18,14 +18,27 @@ class Comment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False,)
-    picture_id = db.Column(db.Integer, db.ForeignKey('pictures.id'), nullable=False)
-    content = db.Column(db.String(2200), nullable=True)
+    image_id = db.Column(db.Integer, db.ForeignKey('images.id'), nullable=False)
+    content = db.Column(db.String(2200), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
 
     user = db.relationship('User', back_populates='comments')
-    picture = db.relationship('Image', back_populates='comments')
+    image = db.relationship('Image', back_populates='comments')
 
-    user_like = db.relationship('User',
+    user_likes = db.relationship('User',
                                 secondary=liked_comment,
-                                back_populates='liked_comment')
+                                back_populates='liked_comments')
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "image_id": self.image_id,
+            "content": self.content,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "user": [(user.id, user.username) for user in self.user],
+            "user_likes": [(user.id, user.username) for user in self.users],
+            "num_likes": len(self.user_likes),
+        }

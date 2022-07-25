@@ -34,3 +34,9 @@ def upload_image():
     db.session.add(new_image)
     db.session.commit()
     return {"url": url}
+
+@image_routes.route("/my_images")
+@login_required
+def get_images():
+    images = Image.query.filter_by(user_id = current_user.user_id).all()
+    return { "images": [image.to_dict() for image in images] }

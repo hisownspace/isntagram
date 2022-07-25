@@ -1,14 +1,14 @@
 from datetime import datetime
 from .db import db
 
-tagged_picture = db.Table('tagged_picture',
+tagged_image = db.Table('tagged_image',
     db.Column('tag_id',
                 db.Integer,
                 db.ForeignKey("tags.id"),
                 nullable=False),
-    db.Column('picture_id',
+    db.Column('image_id',
                 db.Integer,
-                db.ForeignKey("pictures.id"),
+                db.ForeignKey("images.id"),
                 nullable=False)
         )
 
@@ -20,6 +20,13 @@ class Tag(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
 
-    pictures = db.relationship("Image",
-                                secondary=tagged_picture,
+    images = db.relationship("Image",
+                                secondary=tagged_image,
                                 back_populates="tags")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "images": [(image.id, image.url) for image in self.images]
+        }

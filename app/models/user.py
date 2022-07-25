@@ -1,6 +1,6 @@
 from .db import db
 from .comment import liked_comment
-from .image import liked_picture
+from .image import liked_image
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -30,17 +30,17 @@ class User(db.Model, UserMixin):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
 
     comments = db.relationship('Comment', back_populates='user')
-    pictures = db.relationship('Image', back_populates='user')
+    images = db.relationship('Image', back_populates='user')
 
-    liked_comment = db.relationship('Comment',
+    liked_comments = db.relationship('Comment',
                                     secondary=liked_comment,
-                                    back_populates='user_like')
+                                    back_populates='user_likes')
     
-    liked_picture = db.relationship('Image',
-                                    secondary=liked_picture,
-                                    back_populates='user_like')
+    liked_images = db.relationship('Image',
+                                    secondary=liked_image,
+                                    back_populates='user_likes')
     
-    followed = db.relationship('User',
+    following = db.relationship('User',
                                 secondary=followers,
                                 primaryjoin=(followers.c.follower_id == id),
                                 secondaryjoin=(followers.c.followed_id == id),
@@ -61,8 +61,15 @@ class User(db.Model, UserMixin):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email,
-            'password': self.password
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "password": self.password,
+            "comments": [comment.to_dict() for comment in self.comments],
+            "images": [image.to_dict() for image in self.images],
+            "liked_comments": [comment.id for comment in self.comments],
+            "liked_images": [image.id for image in self.images],
+            "posts": len(self.images),
+            "following": [user.id for user in self.following],
+            "followers": [user.id for user in self.followers]
         }
