@@ -14,7 +14,7 @@ def upload_image():
     form = UploadForm()
     form['csrf_token'].data = request.cookies['csrf_token']
     if not form.validate_on_submit():
-        return { "errors": "There was a problem with the upload." +
+        return { "errors": "There was a problem with the upload. " +
                             "Please try again later." }
     if "image" not in form.data:
         return {"errors": "image required"}, 400
@@ -42,13 +42,13 @@ def upload_image():
     return {"url": url}
 
 
-@image_routes.route("/all")
+@image_routes.route("")
 @login_required
 def get_feed():
-    this_user_id = 2
+
     followed_images = []
 
-    following = User.query.get(this_user_id).following
+    following = User.query.get(current_user.id).following
     for user in following:
         for image in user.images:
             followed_images.append(image)
@@ -60,4 +60,7 @@ def get_feed():
             [image.to_dict() for image in followed_images]
         }
 
-# @image_routes.route("/")
+@image_routes.route("/<int:id>")
+def get_image(id):
+    image = Image.query.get(id)
+    return { "image": image.to_dict() }
