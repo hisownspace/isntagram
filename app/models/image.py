@@ -24,7 +24,7 @@ class Image(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
 
     user = db.relationship('User', back_populates='images')
-    comments = db.relationship('Comment', back_populates='images')
+    comments = db.relationship('Comment', back_populates='image')
 
     tags = db.relationship('Tag',
                             secondary=tagged_image,

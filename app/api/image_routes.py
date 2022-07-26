@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from app.models import db, Image
+from app.models import db, Image, User
 from flask_login import current_user, login_required
 from app.s3_helpers import (
     upload_file_to_s3, allowed_file, get_unique_filename)
@@ -36,7 +36,27 @@ def upload_image():
     return {"url": url}
 
 @image_routes.route("/my_images")
-@login_required
+# @login_required
 def get_images():
-    images = Image.query.filter_by(user_id = current_user.user_id).all()
+    this_user_id = 2
+    images = Image.query.filter_by(user_id = this_user_id)\
+        .order_by(Image.created_at.desc()).all()
     return { "images": [image.to_dict() for image in images] }
+
+@image_routes.route("/image_feed")
+def get_feed():
+    this_user_id = 1
+    followed_images = []
+
+    following = User.query.get(this_user_id).following
+    for user in following:
+        for image in user.images:
+            followed_images.append(image)
+    
+    followed_images.sort(key=lambda img: img.created_at, reverse=True)
+
+    return { 
+        "followed_images": 
+            [image.to_dict() for image in followed_images]
+        }
+    
