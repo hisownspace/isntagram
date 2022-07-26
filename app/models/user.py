@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 # Self-referential join table to track followers and followees
-follows = db.Table('followers',
+follows = db.Table('follows',
     db.Column('follower_id',
                 db.Integer,
                 db.ForeignKey("users.id"),

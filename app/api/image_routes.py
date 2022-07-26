@@ -3,6 +3,7 @@ from app.models import db, Image, User
 from flask_login import current_user, login_required
 from app.s3_helpers import (
     upload_file_to_s3, allowed_file, get_unique_filename)
+from app.forms import UploadForm
 
 image_routes = Blueprint("images", __name__)
 
@@ -10,6 +11,11 @@ image_routes = Blueprint("images", __name__)
 @image_routes.route("", methods=["POST"])
 @login_required
 def upload_image():
+    form = UploadForm()
+    print(form.data)
+    if not form.validate_on_submit():
+        return { "errors": "There was a problem with the upload." +
+                            "Please try again later." }
     if "image" not in request.files:
         return {"errors": "image required"}, 400
 
@@ -37,6 +43,7 @@ def upload_image():
 
 
 @image_routes.route("/all")
+@login_required
 def get_feed():
     this_user_id = 2
     followed_images = []
@@ -52,4 +59,5 @@ def get_feed():
         "followed_images": 
             [image.to_dict() for image in followed_images]
         }
-    
+
+# @image_routes.route("/")
