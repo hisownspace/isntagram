@@ -35,17 +35,10 @@ def upload_image():
     db.session.commit()
     return {"url": url}
 
-@image_routes.route("/my_images")
-# @login_required
-def get_images():
-    this_user_id = 2
-    images = Image.query.filter_by(user_id = this_user_id)\
-        .order_by(Image.created_at.desc()).all()
-    return { "images": [image.to_dict() for image in images] }
 
-@image_routes.route("/image_feed")
+@image_routes.route("/all")
 def get_feed():
-    this_user_id = 1
+    this_user_id = 2
     followed_images = []
 
     following = User.query.get(this_user_id).following

@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 # Self-referential join table to track followers and followees
-followers = db.Table('followers',
+follows = db.Table('followers',
     db.Column('follower_id',
                 db.Integer,
                 db.ForeignKey("users.id"),
@@ -14,6 +14,17 @@ followers = db.Table('followers',
     db.Column('followed_id',
                 db.Integer,
                 db.ForeignKey('users.id'),
+                nullable=False)
+)
+
+requests = db.Table('follow_requests',
+    db.Column('requester_id',
+                db.Integer,
+                db.ForeignKey("users.id"),
+                nullable=False),
+    db.Column('requested_id',
+                db.Integer,
+                db.ForeignKey("users.id"),
                 nullable=False)
 )
 
@@ -41,12 +52,17 @@ class User(db.Model, UserMixin):
                                     back_populates='user_likes')
     
     following = db.relationship('User',
-                                secondary=followers,
-                                primaryjoin=(followers.c.follower_id == id),
-                                secondaryjoin=(followers.c.followed_id == id),
+                                secondary=follows,
+                                primaryjoin=(follows.c.follower_id == id),
+                                secondaryjoin=(follows.c.followed_id == id),
                                 backref=db.backref('followers', lazy='dynamic'),
                                 )
 
+    requests = db.relationship('User',
+                                secondary=requests,
+                                primaryjoin=(requests.c.requester_id == id),
+                                secondaryjoin=(requests.c.requested_id == id),
+                                backref=db.backref('requested', lazy='dynamic'))
 
     @property
     def password(self):
