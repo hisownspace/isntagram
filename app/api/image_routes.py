@@ -12,14 +12,14 @@ image_routes = Blueprint("images", __name__)
 @login_required
 def upload_image():
     form = UploadForm()
-    print(form.data)
+    form['csrf_token'].data = request.cookies['csrf_token']
     if not form.validate_on_submit():
         return { "errors": "There was a problem with the upload." +
                             "Please try again later." }
-    if "image" not in request.files:
+    if "image" not in form.data:
         return {"errors": "image required"}, 400
 
-    image = request.files["image"]
+    image = form.data["image"]
 
     if not allowed_file(image.filename):
         return {"errors": "file type not permitted"}, 400
