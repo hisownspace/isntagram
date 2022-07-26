@@ -4,8 +4,13 @@ from app.forms import LoginForm
 from app.forms import SignUpForm
 from flask_login import current_user, login_user, logout_user, login_required
 
+from app.s3_helpers import allowed_file, get_unique_filename, upload_file_to_s3
+
 auth_routes = Blueprint('auth', __name__)
 
+BUCKET_URL = "isntagram-app-bucket.s3.amazonaws.com"
+
+DEFAULT_PROFILE_PIC = f"https://{BUCKET_URL}/default-profile-pic.jpg"
 
 def validation_errors_to_error_messages(validation_errors):
     """
@@ -59,13 +64,34 @@ def sign_up():
     """
     Creates a new user and logs them in
     """
+
     form = SignUpForm()
     form['csrf_token'].data = request.cookies['csrf_token']
+
     if form.validate_on_submit():
+        print("==============>", form.data["image"])
+        if form.data["image"] is None:
+            url = DEFAULT_PROFILE_PIC
+        else:
+            image = form.data["image"]
+
+            if not allowed_file(image.filename):
+                return { "errors": "file type not permitted" }, 400
+
+            image.filename = get_unique_filename(image.filename)
+
+            upload = upload_file_to_s3(image)
+            if "url" not in upload:
+                return upload, 400
+
+            url = upload["url"]
+
         user = User(
             username=form.data['username'],
             email=form.data['email'],
-            password=form.data['password']
+            password=form.data['password'],
+            full_name=form.data["full_name"],
+            image_url=url
         )
         db.session.add(user)
         db.session.commit()

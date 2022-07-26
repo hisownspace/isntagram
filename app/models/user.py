@@ -76,13 +76,17 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password, password)
 
     def to_dict(self):
+        images = [image.to_dict() for image in self.images]
+        images.sort(key=lambda img: img["created_at"], reverse=True)
+        print(images)
         return {
             "id": self.id,
             "username": self.username,
             "email": self.email,
             "password": self.password,
+            "image_url": self.image_url,
             "comments": [comment.to_dict() for comment in self.comments],
-            "images": [image.to_dict() for image in self.images],
+            "images": images,
             "liked_comments": [comment.id for comment in self.comments],
             "liked_images": [image.id for image in self.images],
             "posts": len(self.images),

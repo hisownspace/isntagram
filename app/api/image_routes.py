@@ -3,7 +3,7 @@ from app.models import db, Image, User
 from flask_login import current_user, login_required
 from app.s3_helpers import (
     upload_file_to_s3, allowed_file, get_unique_filename)
-from app.forms import UploadForm
+from app.forms import UploadForm, UpdateImage
 
 image_routes = Blueprint("images", __name__)
 
@@ -35,8 +35,9 @@ def upload_image():
         return upload, 400
 
     url = upload["url"]
+    caption = form.data["caption"]
     # flask_login allows us to get the current user from the request
-    new_image = Image(user=current_user, url=url)
+    new_image = Image(user=current_user, url=url, caption=caption)
     db.session.add(new_image)
     db.session.commit()
     return {"url": url}
@@ -48,7 +49,7 @@ def get_feed():
 
     followed_images = []
 
-    following = User.query.get(current_user.id).following
+    following = User.query.get(1).following
     for user in following:
         for image in user.images:
             followed_images.append(image)
@@ -63,4 +64,12 @@ def get_feed():
 @image_routes.route("/<int:id>")
 def get_image(id):
     image = Image.query.get(id)
+    return { "image": image.to_dict() }
+
+@image_routes.route("/<int:id>", methods=["PUT"])
+def update_image(id):
+    form = UpdateImage()
+    image = Image.query.get(id)
+    image.caption = form.data["caption"]
+    db.session.commit()
     return { "image": image.to_dict() }
