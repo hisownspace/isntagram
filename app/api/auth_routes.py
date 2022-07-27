@@ -69,7 +69,6 @@ def sign_up():
     form['csrf_token'].data = request.cookies['csrf_token']
 
     if form.validate_on_submit():
-        print("==============>", form.data["image"])
         if form.data["image"] is None:
             url = DEFAULT_PROFILE_PIC
         else:
