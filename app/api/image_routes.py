@@ -1,8 +1,9 @@
 from flask import Blueprint, request
+from app.forms import DeleteImage
 from app.models import db, Image, User
 from flask_login import current_user, login_required
 from app.s3_helpers import (
-    upload_file_to_s3, allowed_file, get_unique_filename)
+    remove_file_from_s3, upload_file_to_s3, allowed_file, get_unique_filename)
 from app.forms import UploadForm, UpdateImage
 
 image_routes = Blueprint("images", __name__)
@@ -49,7 +50,7 @@ def get_feed():
 
     followed_images = []
 
-    following = User.query.get(1).following
+    following = User.query.get(current_user.id).following
     for user in following:
         for image in user.images:
             followed_images.append(image)
@@ -67,9 +68,28 @@ def get_image(id):
     return { "image": image.to_dict() }
 
 @image_routes.route("/<int:id>", methods=["PUT"])
+@login_required
 def update_image(id):
+    if id != current_user.id:
+        return { "message": "unauthorized resource" }
     form = UpdateImage()
     image = Image.query.get(id)
     image.caption = form.data["caption"]
     db.session.commit()
     return { "image": image.to_dict() }
+
+@image_routes.route("/<int:id>", methods=["DELETE"])
+@login_required
+def delete_image(id):
+    form = DeleteImage()
+    form["csrf_token"].data = request.cookies["csrf_token"]
+    if form.validate_on_submit():
+        image = Image.query.get(id)
+        if image.user_id != current_user.id:
+            return { "errors": "unauthorized resource" }
+        image_key = image.url.rsplit("/")[-1]
+        remove_file_from_s3(image_key)
+        db.session.delete(image)
+        db.session.commit()
+        return { "message": "Delete Successful!" }
+    return { "errors": "Unkown error: Try again later." }
