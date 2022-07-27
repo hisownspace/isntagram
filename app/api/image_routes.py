@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from app.forms import DeleteImage
+from app.forms import TagForm
 from app.models import db, Image, User
 from flask_login import current_user, login_required
 from app.s3_helpers import (
@@ -7,6 +8,8 @@ from app.s3_helpers import (
 from app.forms import UploadForm, UpdateImage
 
 image_routes = Blueprint("images", __name__)
+
+# User images route is located in user_routes module
 
 
 @image_routes.route("", methods=["POST"])
@@ -41,7 +44,7 @@ def upload_image():
     new_image = Image(user=current_user, url=url, caption=caption)
     db.session.add(new_image)
     db.session.commit()
-    return {"url": url}
+    return { "image": new_image.to_dict() }
 
 
 @image_routes.route("")
@@ -93,3 +96,10 @@ def delete_image(id):
         db.session.commit()
         return { "message": "Delete Successful!" }
     return { "errors": "Unkown error: Try again later." }
+
+@image_routes.route("/<int:id>/tags", methods=["POST"])
+def tag_image(id):
+    form = TagForm()
+
+    if form.validate_on_submit():
+        pass

@@ -17,6 +17,7 @@ follows = db.Table('follows',
                 nullable=False)
 )
 
+# Self-referential join table to track follow requests
 requests = db.Table('follow_requests',
     db.Column('requester_id',
                 db.Integer,
@@ -27,6 +28,7 @@ requests = db.Table('follow_requests',
                 db.ForeignKey("users.id"),
                 nullable=False)
 )
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
