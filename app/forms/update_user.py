@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FileField
+from wtforms import StringField, FileField, SubmitField
 from wtforms.validators import DataRequired
 from flask_wtf.file import FileRequired
 
@@ -10,6 +10,8 @@ class UpdateUser(FlaskForm):
     password = StringField("password")
     username = StringField("username")
 
+class DeleteUser(FlaskForm):
+    submit = SubmitField("submit")
 
 # class UpdateUserEmail(FlaskForm):
 #     email = StringField("email", validators=[DataRequired()])

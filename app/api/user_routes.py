@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
-from app.forms import UpdateUser
+from app.forms import UpdateUser, DeleteUser
 from app.models import User, Image, db
 from app.s3_helpers import allowed_file, get_unique_filename, remove_file_from_s3, upload_file_to_s3
 
@@ -72,6 +72,18 @@ def update_user(id):
         db.session.commit()
         return { "user": user.to_dict() }
 
-@user_routes.route("/<int:id>")
+@user_routes.route("/<int:id>", methods=["DELETE"])
 def delete_your_account(id):
-    pass
+    if id != current_user.id:
+        return { "errors": "unauthorized resource" }
+    form = DeleteUser()
+    form['csrf_token'].data = request.cookies['csrf_token']
+
+    if form.validate_on_submit():
+        user = User.query.get(current_user.id)
+        image_url = user.image_url
+        image_key = image_url.rsplit("/")[-1]
+        remove_file_from_s3(image_key)
+        db.session.delete(user)
+        db.session.commit()
+        return { "message": "Delete successful!" }
