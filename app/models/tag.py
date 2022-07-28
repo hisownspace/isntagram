@@ -28,5 +28,5 @@ class Tag(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "images": [(image.id, image.url) for image in self.images]
+            "images": [image.id for image in self.images]
         }

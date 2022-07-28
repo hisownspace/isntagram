@@ -13,26 +13,35 @@ def create_tag():
     form["csrf_token"].data = request.cookies["csrf_token"]
 
     if form.validate_on_submit():
+        tags = []
 
-        tag_name = form.data["name"]
+        tag_names = form.data["tags"]
+        for tag_name in tag_names:
+            if not match("^[\w]+$", tag_name):
+                return { "errors": "Invalid tag name" }
 
-        if not match("^[\w]+$", tag_name):
-            return { "errors": "Invalid tag name" }
+            existing_tag = Tag.query.filter_by(name=tag_name).first()
 
-        existing_tag = Tag.query.filter_by(name=tag_name).first()
+            if existing_tag and existing_tag.name == tag_name:
+                return { "tag": existing_tag.to_dict() }
 
-        if existing_tag and existing_tag.name == tag_name:
-            return { "tag": existing_tag.to_dict() }
+            tag = Tag(name=tag_name)
+            db.session.add(tag)
+            db.session.commit()
+            tags.append(tag)
 
-        tag = Tag(name=tag_name)
-        db.session.add(tag)
-        db.session.commit()
-
-        return { "tag": tag.to_dict() }
+        return { "tags": [tag.to_dict() for tag in tags] }
 
     return { "errors": "Unknown error: Try again later" }
 
-@tag_routes.route("/<string:tag>")
-def get_tagged_images(tag):
-    tag = Tag.query.filter_by(name=tag)
-    print(tag.to_dict())
+@tag_routes.route("/<int:id>")
+def get_tagged_images(id):
+    tag = Tag.query.get(id)
+    tagged_images = tag.to_dict()["images"]
+    return { "images": tagged_images}
+
+@tag_routes.route("")
+def get_all_tags():
+    tags = Tag.query.all()
+
+    return { "tags": [tag.to_dict() for tag in tags] }

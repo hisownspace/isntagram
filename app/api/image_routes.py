@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from app.forms import DeleteImage
 from app.forms import TagForm
-from app.models import db, Image, User
+from app.models import db, Image, User, Tag
 from flask_login import current_user, login_required
 from app.s3_helpers import (
     remove_file_from_s3, upload_file_to_s3, allowed_file, get_unique_filename)
@@ -97,9 +97,29 @@ def delete_image(id):
         return { "message": "Delete Successful!" }
     return { "errors": "Unkown error: Try again later." }
 
-@image_routes.route("/<int:id>/tags", methods=["POST"])
+@image_routes.route("/<int:id>/tags", methods=["POST", "PUT"])
+@login_required
 def tag_image(id):
     form = TagForm()
-
+    form["csrf_token"].data = request.cookies["csrf_token"]
     if form.validate_on_submit():
-        pass
+        image = Image.query.get(id)
+
+        if image.user_id != current_user.id:
+            return { "errors": "unauthorized resource" }
+
+        ids = form.data["ids"]
+        image.tags = []
+        for id in ids:
+            tag = Tag.query.get(id)
+            image.tags.append(tag)
+        all_tags = Tag.query.all()
+        for tag in all_tags:
+            if len(tag.images) == 0:
+                db.session.delete(tag)
+        db.session.commit()
+        return {
+                    "image": image.to_dict(), 
+                    "tags": [tag.to_dict() for tag in image.tags]
+                }
+    return { "errors": "Unknown Error. Try again later." }
