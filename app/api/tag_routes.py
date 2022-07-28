@@ -1,7 +1,8 @@
 from flask import Blueprint, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app.forms import TagForm
-from app.models import db, Tag
+from app.models import db, Tag, Image
+from app.api.image_routes import image_routes
 from re import match
 
 
@@ -45,3 +46,32 @@ def get_all_tags():
     tags = Tag.query.all()
 
     return { "tags": [tag.to_dict() for tag in tags] }
+
+# this route uses the url /api/images,
+# but was placed here for consistency
+@image_routes.route("/<int:id>/tags", methods=["POST", "PUT"])
+@login_required
+def tag_image(id):
+    form = TagForm()
+    form["csrf_token"].data = request.cookies["csrf_token"]
+    if form.validate_on_submit():
+        image = Image.query.get(id)
+
+        if image.user_id != current_user.id:
+            return { "errors": "unauthorized resource" }
+
+        ids = form.data["ids"]
+        image.tags = []
+        for id in ids:
+            tag = Tag.query.get(id)
+            image.tags.append(tag)
+        all_tags = Tag.query.all()
+        for tag in all_tags:
+            if len(tag.images) == 0:
+                db.session.delete(tag)
+        db.session.commit()
+        return {
+                    "image": image.to_dict(), 
+                    "tags": [tag.to_dict() for tag in image.tags]
+                }
+    return { "errors": "Unknown Error. Try again later." }

@@ -38,7 +38,7 @@ class Comment(db.Model):
             "content": self.content,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "user": [(user.id, user.username) for user in self.user],
-            "user_likes": [(user.id, user.username) for user in self.users],
+            "user": (self.user.id, self.user.username),
+            "user_likes": [(user.id, user.username) for user in self.user_likes],
             "num_likes": len(self.user_likes),
         }
