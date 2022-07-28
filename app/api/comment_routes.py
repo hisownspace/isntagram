@@ -1,6 +1,7 @@
 from mimetypes import common_types
 from flask import request, Blueprint
 from flask_login import current_user, login_required
+from app.forms.comment_form import DeleteComment
 from app.models import Comment, db, Image, User
 from app.api.image_routes import image_routes
 from app.forms import CommentForm
@@ -33,7 +34,18 @@ def update_comment(id):
 @comment_routes.route("/<int:id>", methods=["DELETE"])
 @login_required
 def delete_comment(id):
-    pass
+    form = DeleteComment()
+
+    form["csrf_token"].data = request.cookies["csrf_token"]
+
+    if form.validate_on_submit():
+        comment = Comment.query.get(id)
+        if current_user.id != comment.user.id:
+            return { "errors": "Unauthorized resource" }
+        db.session.delete(comment)
+        db.session.commit()
+        return { "message": "Delete Successful!" }
+    return { "errors": "Unknown error. Try again later" }
 
 # /api/images routes
 @image_routes.route("/<int:id>/comments")
