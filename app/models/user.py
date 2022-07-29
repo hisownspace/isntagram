@@ -93,5 +93,7 @@ class User(db.Model, UserMixin):
             "liked_images": [image.id for image in self.images],
             "posts": len(self.images),
             "following": [user.id for user in self.following],
-            "followers": [user.id for user in self.followers]
+            "followers": [user.id for user in self.followers],
+            "requested": [user.id for user in self.requested],
+            "requests": [user.id for user in self.requests],
         }

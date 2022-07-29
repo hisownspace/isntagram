@@ -76,7 +76,7 @@ def get_image(id):
 @login_required
 def update_image(id):
     if id != current_user.id:
-        return { "errors": "unauthorized resource" }
+        return { "errors": "Unauthorized resource" }
     form = UpdateImage()
     image = Image.query.get(id)
     image.caption = form.data["caption"]
@@ -91,7 +91,7 @@ def delete_image(id):
     if form.validate_on_submit():
         image = Image.query.get(id)
         if image.user_id != current_user.id:
-            return { "errors": "unauthorized resource" }
+            return { "errors": "Unauthorized resource" }
         image_key = image.url.rsplit("/")[-1]
         remove_file_from_s3(image_key)
         db.session.delete(image)

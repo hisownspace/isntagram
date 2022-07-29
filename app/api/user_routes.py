@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
 from app.forms import UpdateUser, DeleteUser
+from flask_wtf.csrf import validate_csrf
 from app.models import User, Image, db
 from app.s3_helpers import allowed_file, get_unique_filename, remove_file_from_s3, upload_file_to_s3
 
@@ -85,3 +86,56 @@ def delete_your_account(id):
         db.session.delete(user)
         db.session.commit()
         return { "message": "Delete successful!" }
+
+
+@user_routes.route("/<int:id>/follow")
+@login_required
+def make_follow_request(id):
+    followee = User.query.get(id)
+    follower = User.query.get(current_user.id)
+    followed_users = [user.id for user in follower.following]
+    requested_follows = [user.id for user in follower.requests]
+    if not followee:
+        return { "errors": f"User {id} does not exist"}
+    if followee.id in followed_users:
+        return { "errors": f"User {current_user.id} is already" +
+                            " following user {id}" }
+    if followee.id in requested_follows:
+        return { "errors": f"User {current_user.id} has already" +
+                            " sent a follow request to user {id}" }
+    csrf_token = request.cookies["csrf_token"]
+    try:
+        validate_csrf(csrf_token)
+        followee.requested.append(follower)
+        db.session.commit()
+        return { "message": "Follow request sent!" }
+    except Exception as e:
+        return { "errors": str(e) }
+
+@user_routes.route("/<int:id>/unfollow", methods=["DELETE"])
+@login_required
+def rescind_follow_request(id):
+    followee = User.query.get(id)
+    follower = User.query.get(current_user.id)
+    followed_users = [user.id for user in follower.following]
+    requested_follows = [user.id for user in follower.requests]
+    if not followee:
+        return { "errors": f"User {id} does not exist" }
+    if followee.id not in requested_follows:
+        return { "errors": f"User {current_user.id} does not have a" +
+                            f" pending follow request with user {id}" }
+    if followee.id in followed_users:
+        return {
+            "errors": f"User {current_user.id} is currently following" +
+                        f" user {id}"
+        }
+    csrf_token = request.cookies["csrf_token"]
+    try:
+        validate_csrf(csrf_token)
+        followee.requested.remove(follower)
+        db.session.commit()
+        return { "message": 
+                    "Request successfully rescinded!"
+                }
+    except Exception as e:
+        return { "errors": str(e) }
