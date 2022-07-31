@@ -139,3 +139,28 @@ def rescind_follow_request(id):
                 }
     except Exception as e:
         return { "errors": str(e) }
+
+@user_routes.route("/<int:id/confirm-follow", methods=["POST"])
+@login_required
+def confirm_follow(id):
+    follower = User.query.get(id)
+    followee = User.query.get(current_user.id)
+    requested_follows = [user.id for user in follower.requests]
+    followed_users = [user.id for user in follower.following]
+    if not followee:
+        return { "errors": f"User {id} does not exist" }
+    if followee.id not in requested_follows:
+        return { "errors": f"User {id} does not have a pending follow" +
+                           f" request with user {current_user.id}" }
+    if followee.id in followed_users:
+        return {
+            "errors": f"User {current_user.id} is currently following" +
+                        f" user {id}"
+        }
+    csrf_token = request.cookies["csrf_token"]
+    try:
+        validate_csrf(csrf_token)
+        # this part needs to be finished
+        pass
+    except Exception as e:
+        return { "errors": str(e) }
