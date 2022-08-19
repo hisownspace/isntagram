@@ -11,11 +11,11 @@ tag_routes = Blueprint("tags", __name__)
 @tag_routes.route("", methods=["POST"])
 def create_tag():
     form = TagForm()
+    print(form.data)
     form["csrf_token"].data = request.cookies["csrf_token"]
-
     if form.validate_on_submit():
         tags = []
-
+        print(form.data)
         tag_names = form.data["tags"]
         for tag_name in tag_names:
             if not match("^[\w]+$", tag_name):
@@ -25,7 +25,7 @@ def create_tag():
 
             if existing_tag and existing_tag.name == tag_name:
                 return { "tag": existing_tag.to_dict() }
-
+            print(tag_name)
             tag = Tag(name=tag_name)
             db.session.add(tag)
             db.session.commit()
@@ -49,6 +49,7 @@ def get_all_tags():
 
 # this route uses the url /api/images,
 # but was placed here for consistency
+# CREATE/UPDATE TAGS
 @image_routes.route("/<int:id>/tags", methods=["POST", "PUT"])
 @login_required
 def tag_image(id):

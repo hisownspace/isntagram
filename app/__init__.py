@@ -38,7 +38,7 @@ app.register_blueprint(image_routes, url_prefix='/api/images')
 app.register_blueprint(tag_routes, url_prefix='/api/tags')
 app.register_blueprint(comment_routes, url_prefix='/api/comments')
 db.init_app(app)
-Migrate(app, db)
+migrate = Migrate(app, db)
 
 # Application Security
 CORS(app)

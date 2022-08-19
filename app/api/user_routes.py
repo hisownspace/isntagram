@@ -96,23 +96,25 @@ def make_follow_request(id):
     followed_users = [user.id for user in follower.following]
     requested_follows = [user.id for user in follower.requests]
     if not followee:
-        return { "errors": f"User {id} does not exist"}
+        return { "errors": f"User {id} does not exist"}, 400
     if followee.id in followed_users:
         return { "errors": f"User {current_user.id} is already" +
-                            " following user {id}" }
+                            f" following user {id}" }
     if followee.id in requested_follows:
         return { "errors": f"User {current_user.id} has already" +
-                            " sent a follow request to user {id}" }
+                            f" sent a follow request to user {id}" }, 400
+    if current_user.id == id:
+        return { "errors": " You can't follow yourself, silly" }, 400
     csrf_token = request.cookies["csrf_token"]
     try:
         validate_csrf(csrf_token)
         followee.requested.append(follower)
         db.session.commit()
-        return { "message": "Follow request sent!" }
+        return { "message": "Follow request sent!" }, 201
     except Exception as e:
         return { "errors": str(e) }
 
-@user_routes.route("/<int:id>/unfollow", methods=["DELETE"])
+@user_routes.route("/<int:id>/rescind-request", methods=["DELETE"])
 @login_required
 def rescind_follow_request(id):
     followee = User.query.get(id)
@@ -129,6 +131,8 @@ def rescind_follow_request(id):
             "errors": f"User {current_user.id} is currently following" +
                         f" user {id}"
         }
+    if current_user.id == id:
+        return { "errors": "You can't rescind a follow request to yourself, silly!" }
     csrf_token = request.cookies["csrf_token"]
     try:
         validate_csrf(csrf_token)
@@ -140,7 +144,7 @@ def rescind_follow_request(id):
     except Exception as e:
         return { "errors": str(e) }
 
-@user_routes.route("/<int:id/confirm-follow", methods=["POST"])
+@user_routes.route("/<int:id>/confirm-follow", methods=["POST"])
 @login_required
 def confirm_follow(id):
     follower = User.query.get(id)
@@ -157,6 +161,8 @@ def confirm_follow(id):
             "errors": f"User {current_user.id} is currently following" +
                         f" user {id}"
         }
+    if current_user.id == id:
+        return { "errors": "You can't rescind a follow request to yourself, silly!" } 
     csrf_token = request.cookies["csrf_token"]
     try:
         validate_csrf(csrf_token)
@@ -164,3 +170,7 @@ def confirm_follow(id):
         pass
     except Exception as e:
         return { "errors": str(e) }
+    followee.requested.remove(follower)
+    followee.followers.append(follower)
+    db.session.commit()
+    return { "message": "Successfully added follower" }, 201

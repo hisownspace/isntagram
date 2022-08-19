@@ -44,6 +44,7 @@ def upload_image():
     caption = form.data["caption"]
     # flask_login allows us to get the current user from the request
     new_image = Image(user=current_user, url=url, caption=caption)
+    print(new_image)
     db.session.add(new_image)
     db.session.commit()
     return { "image": new_image.to_dict() }
@@ -97,5 +98,5 @@ def delete_image(id):
         db.session.delete(image)
         db.session.commit()
         return { "message": "Delete Successful!" }
-    return { "errors": "Unkown error: Try again later." }
+    return { "errors": "Unknown error: Try again later." }
 
