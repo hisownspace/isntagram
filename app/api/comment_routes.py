@@ -1,12 +1,9 @@
-from mimetypes import common_types
 from flask import request, Blueprint
 from flask_login import current_user, login_required
 from app.forms.comment_form import DeleteComment
 from app.models import Comment, db, Image, User
 from app.api.image_routes import image_routes
 from app.forms import CommentForm
-from flask_wtf.csrf import validate_csrf
-from app.config import Config
 
 comment_routes = Blueprint("comments", __name__)
 
@@ -29,7 +26,7 @@ def update_comment(id):
         comment.content = form.data["content"]
         db.session.commit()
         return { "comment": comment.to_dict() }
-    return { "errors": "Unkown error: Try again later." }
+    return { "errors": "Unknown error: Try again later." }
         
 @comment_routes.route("/<int:id>", methods=["DELETE"])
 @login_required
@@ -83,4 +80,3 @@ def post_comment(id):
         db.session.commit()
         return { "comment": comment.to_dict() }
     return { "errors": "Unknown error. Try again later."}
-

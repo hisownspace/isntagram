@@ -11,6 +11,8 @@ from .api.auth_routes import auth_routes
 from .api.image_routes import image_routes
 from .api.tag_routes import tag_routes
 from .api.comment_routes import comment_routes
+import app.api.follow_routes
+import app.api.like_routes
 
 from .seeds import seed_commands
 

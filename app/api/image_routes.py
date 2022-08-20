@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_login import current_user, login_required
-from app.forms import DeleteImage, TagForm, UpdateImage, UploadForm
-from app.models import db, Image, User, Tag
+from app.forms import DeleteImage, UpdateImage, UploadForm
+from app.models import db, Image, User
 from app.s3_helpers import (
                             remove_file_from_s3,
                             upload_file_to_s3,
