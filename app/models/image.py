@@ -14,6 +14,12 @@ liked_image = db.Table('liked_image',
 )
 
 class Image(db.Model):
+    """Image model for alembic and sqlalchemy
+    
+    has many-to-many relationship with tags
+    has many-to-many relationship with users on the liked_image table (above)
+    has many-to-one relationship with users
+    """
     __tablename__ = "images"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -35,6 +41,7 @@ class Image(db.Model):
                                 back_populates='liked_images')
 
     def to_dict(self):
+        """Returns dict representing image object for use in http responses"""
         return {
             "id": self.id,
             "user_id": self.user_id,

@@ -20,5 +20,7 @@ def upgrade():
     op.alter_column('tagged_image', 'picture_id', new_column_name='image_id')
 
 
+
+
 def downgrade():
     op.alter_column('tagged_image', 'image_id', new_column_name='picture_id')

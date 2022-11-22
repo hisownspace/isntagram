@@ -10,6 +10,7 @@ import User from './components/User';
 import { authenticate } from './store/session';
 import UploadImage from './components/UploadImage';
 import MainFeed from './components/MainFeed';
+import PatternForm from './components/PatternForm';
 
 function App() {
   const [loaded, setLoaded] = useState(false);
@@ -37,6 +38,7 @@ function App() {
         <ProtectedRoute path='/users/:userId' exact={true} ><User /></ProtectedRoute>
         <ProtectedRoute path='/' exact={true} ><h1>My Home Page</h1></ProtectedRoute>
         <ProtectedRoute path="/upload"><UploadImage /></ProtectedRoute>
+        <Route path="/form-test"><PatternForm /></Route>
       </Switch>
     </BrowserRouter>
   );

@@ -14,6 +14,10 @@ liked_comment = db.Table('liked_comment',
 )
 
 class Comment(db.Model):
+    """Comment model for alembic and SQLAlchemy
+    
+    has many-to-many relationship with users on liked_comment table (above)
+    """
     __tablename__ = "comments"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -31,6 +35,7 @@ class Comment(db.Model):
                                 back_populates='liked_comments')
 
     def to_dict(self):
+        """Returns a dictionary representing comment object for use in http responses"""
         return {
             "id": self.id,
             "user_id": self.user_id,

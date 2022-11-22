@@ -31,6 +31,17 @@ requests = db.Table('follow_requests',
 
 
 class User(db.Model, UserMixin):
+    """User model for alembic and SQLAlchemy
+    
+    has many-to-many relationship with images on liked_image table
+    has one-to-many relationship with images
+
+    has one-to-many relationship with comments
+    has many-to-many relationship with comments on liked_comment table
+
+    has self-referential many-to-many relationship on follow_requests table (above)
+    has self-referential many-to-many relationship on follows table (above)
+    """
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
